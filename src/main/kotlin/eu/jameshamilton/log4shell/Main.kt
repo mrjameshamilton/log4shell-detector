@@ -24,9 +24,11 @@ import proguard.io.DataEntryNameFilter
 import proguard.io.DataEntryReader
 import proguard.io.Dex2JarReader
 import proguard.io.DirectorySource
+import proguard.io.FileDataEntry
 import proguard.io.FilteredDataEntryReader
 import proguard.io.JarReader
 import proguard.io.NameFilteredDataEntryReader
+import proguard.io.ZipFileDataEntry
 import proguard.util.ExtensionMatcher
 import proguard.util.OrMatcher
 import java.io.File
@@ -59,8 +61,16 @@ fun check(programClassPool: ClassPool, onDetected: (Set<String>) -> Unit) = chec
     object : MemberVisitor {
         @Suppress("UNCHECKED_CAST")
         private fun processingInfoToLocation(clazz: Clazz): Set<String> = when (clazz.processingInfo) {
-            is DataEntry -> setOf((clazz.processingInfo as DataEntry).parent.originalName)
-            is Set<*> -> (clazz.processingInfo as Set<DataEntry>).map { it.parent.originalName }.toSortedSet()
+            is DataEntry -> with(clazz.processingInfo as DataEntry) {
+                setOf(this.parent?.originalName ?: this.originalName)
+            }
+            is Set<*> -> (clazz.processingInfo as Set<DataEntry>).map {
+                when (it) {
+                    is FileDataEntry -> it.file.absolutePath
+                    is ZipFileDataEntry -> it.parent.originalName
+                    else -> it.originalName
+                }
+            }.toSortedSet()
             else -> setOf("unknown")
         }
 
