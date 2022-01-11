@@ -34,9 +34,14 @@ import proguard.classfile.visitor.ClassPoolFiller as ProGuardClassPoolFiller
 import proguard.io.ClassReader as ProGuardClassReader
 
 fun main(args: Array<String>) {
-    val input = File(args.first())
+    if (args.isEmpty()) {
+        println("Usage: log4shell-detector <jar-file>")
+        return
+    }
 
+    val input = File(args.first())
     val programClassPool = readInput(input)
+
     check(programClassPool) { locations ->
         println(
             """
