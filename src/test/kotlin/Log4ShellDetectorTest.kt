@@ -1,19 +1,12 @@
 import eu.jameshamilton.log4shell.check
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import io.mockk.spyk
-import io.mockk.verify
 import proguard.classfile.AccessConstants.PRIVATE
 import proguard.classfile.AccessConstants.PUBLIC
 import proguard.classfile.ClassPool
-import proguard.classfile.Clazz
-import proguard.classfile.Member
-import proguard.classfile.ProgramClass
-import proguard.classfile.ProgramMember
 import proguard.classfile.VersionConstants.CLASS_VERSION_1_6
 import proguard.classfile.editor.ClassBuilder
 import proguard.classfile.util.ClassRenamer
-import proguard.classfile.visitor.MemberVisitor
 
 class Log4ShellDetectorTest : FunSpec({
     val jndiLookup = ClassBuilder(
@@ -34,34 +27,12 @@ class Log4ShellDetectorTest : FunSpec({
 
     test("Should not detect Log4Shell if JndiLookup is not present") {
         val programClassPool = ClassPool()
-        val visitor = spyk(object : MemberVisitor {
-            override fun visitAnyMember(clazz: Clazz, member: Member) {}
-        })
-
-        check(programClassPool, visitor)
-
-        verify(exactly = 0) {
-            visitor.visitProgramMember(
-                ofType(ProgramClass::class),
-                ofType(ProgramMember::class)
-            )
-        }
+        check(programClassPool) shouldBe false
     }
 
     test("Should detect Log4Shell if JndiLookup and old constructor is present") {
         val programClassPool = ClassPool(jndiLookup, jndiManager)
-        val visitor = spyk(object : MemberVisitor {
-            override fun visitAnyMember(clazz: Clazz, member: Member) {}
-        })
-
-        check(programClassPool, visitor)
-
-        verify(exactly = 1) {
-            visitor.visitProgramMember(
-                ofType(ProgramClass::class),
-                ofType(ProgramMember::class)
-            )
-        }
+        check(programClassPool) shouldBe true
     }
 
     test("Should detect shadowed log4j if JndiLookup and old constructor is present") {
@@ -79,33 +50,12 @@ class Log4ShellDetectorTest : FunSpec({
         programClassPool.getClass("org/apache/logging/log4j/core/net/JndiManager")
             .name shouldBe "com/example/shadow/org/apache/logging/log4j/core/net/JndiManager"
 
-        val visitor = spyk(object : MemberVisitor {
-            override fun visitAnyMember(clazz: Clazz, member: Member) {}
-        })
-        check(programClassPool, visitor)
-
-        verify(exactly = 1) {
-            visitor.visitProgramMember(
-                ofType(ProgramClass::class),
-                ofType(ProgramMember::class)
-            )
-        }
+        check(programClassPool) shouldBe true
     }
 
     test("Should not detect Log4Shell if old constructor is present but JndiLookup is not present") {
         // Removing JndiLookup is a workaround for log4shell
         val programClassPool = ClassPool(jndiManager)
-        val visitor = spyk(object : MemberVisitor {
-            override fun visitAnyMember(clazz: Clazz, member: Member) {}
-        })
-
-        check(programClassPool, visitor)
-
-        verify(exactly = 0) {
-            visitor.visitProgramMember(
-                ofType(ProgramClass::class),
-                ofType(ProgramMember::class)
-            )
-        }
+        check(programClassPool) shouldBe false
     }
 })
