@@ -4,7 +4,6 @@ import proguard.classfile.AccessConstants.PRIVATE
 import proguard.classfile.ClassPool
 import proguard.classfile.visitor.AllMemberVisitor
 import proguard.classfile.visitor.ClassCounter
-import proguard.classfile.visitor.ClassNameFilter
 import proguard.classfile.visitor.ClassPoolFiller
 import proguard.classfile.visitor.ConstructorMethodFilter
 import proguard.classfile.visitor.MemberAccessFilter
@@ -70,18 +69,16 @@ fun check(programClassPool: ClassPool): Boolean {
         // Based on Yara rule https://github.com/darkarnium/Log4j-CVE-Detect/blob/main/rules/vulnerability/log4j/CVE-2021-44228.yar
 
         programClassPool.classesAccept(
-            ClassNameFilter(
-                // Prefix with `**` to take into account shadow packing.
-                "**org/apache/logging/log4j/core/net/JndiManager",
-                AllMemberVisitor(
-                    MethodFilter(
-                        ConstructorMethodFilter(
-                            MemberAccessFilter(
-                                /* requiredSetAccessFlags = */ PRIVATE, /* requiredUnsetAccessFlags = */ 0,
-                                MemberDescriptorFilter(
-                                    "(Ljava/lang/String;Ljavax/naming/Context;)V",
-                                    jndiManagerOldConstructorCounter
-                                )
+            // Prefix with `**` to take into account shadow packing.
+            "**org/apache/logging/log4j/core/net/JndiManager",
+            AllMemberVisitor(
+                MethodFilter(
+                    ConstructorMethodFilter(
+                        MemberAccessFilter(
+                            /* requiredSetAccessFlags = */ PRIVATE, /* requiredUnsetAccessFlags = */ 0,
+                            MemberDescriptorFilter(
+                                "(Ljava/lang/String;Ljavax/naming/Context;)V",
+                                jndiManagerOldConstructorCounter
                             )
                         )
                     )
