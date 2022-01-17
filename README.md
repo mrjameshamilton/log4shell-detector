@@ -10,11 +10,29 @@ and [Apache Log4j Security Vulnerabilities](https://logging.apache.org/log4j/2.x
 
 # Executing
 
+You can download the release distribution, extract and run the shell/bat script:
+
+```
+$ bin/log4shell-detector <path-to-jar>
+```
+
+Or executing via Gradle:
+
 ```bash
 $ ./gradlew run --args=/path/to/my.jar
 ```
 
 The input can be a jar file, class file, directory, Android aar, Android apk.
+
+# Building
+
+The application can be built from source via Gradle:
+
+```
+$ ./gradlew build
+```
+
+This will generate distribution archives in the `build/distributions` directory.
 
 # How does it work?
 
@@ -26,7 +44,7 @@ filters are used to look for the specific constructor.
 
 [dex2jar](https://github.com/pxb1988/dex2jar) is used to convert dex files in Android APKs files to class files.
 
-# Shadow packed applications
+# Shadow packed log4j
 
 Shadow packed versions of log4j should be detected, for example if
 the log4j package is renamed to `com/example/org/apache/logging/log4j`.
