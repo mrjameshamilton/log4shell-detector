@@ -10,19 +10,17 @@ and [Apache Log4j Security Vulnerabilities](https://logging.apache.org/log4j/2.x
 
 # Executing
 
-You can download the release distribution, extract and run the shell/bat script:
+You can download the [release distribution](https://github.com/mrjameshamilton/log4shell-detector/releases/tag/v1.0.0), extract and run the shell/bat script. The input can be a jar file, class file, directory, Android aar, Android apk.
 
 ```
 $ bin/log4shell-detector <path-to-jar>
 ```
 
-Or executing via Gradle:
+Or you can clone this repository and executing via Gradle:
 
 ```bash
 $ ./gradlew run --args=/path/to/my.jar
 ```
-
-The input can be a jar file, class file, directory, Android aar, Android apk.
 
 # Building
 
